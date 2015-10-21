@@ -5,10 +5,14 @@
 #include<stdlib.h>
 #include <stdbool.h>
 
+#define WRIST_TYPE 0
+#define THIGH_TYPE 1
+
 typedef struct multiParam{
     char gszPort[20];
     //int caliDataNum;
     int magDataNum;
+    int sensorType;
 }Params;
 
 typedef struct packetData {

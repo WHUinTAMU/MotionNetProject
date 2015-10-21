@@ -247,3 +247,88 @@
 	"SPRING.h"
 	<string.h>
 
+1445441969 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.c
+	"DataCalibrator.h"
+
+1445402570 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<float.h>
+	"GSLMatrixs.h"
+
+1445353021 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.h
+	<stdio.h>
+	<math.h>
+	<gsl/gsl_matrix.h>
+	<gsl/gsl_linalg.h>
+	<gsl/gsl_blas.h>
+	<gsl/gsl_eigen.h>
+
+1445350814 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.c
+	"DataNode.h"
+
+1445443320 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1445350970 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.c
+	"FileUtil.h"
+
+1445351228 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.h
+	<stdio.h>
+	"DataNode.h"
+	"SPRING.h"
+
+1445404847 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<math.h>
+	<float.h>
+	"DataNode.h"
+
+1445353035 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.c
+	"GSLMatrixs.h"
+
+1445372443 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.c
+	"PktParser.h"
+
+1445372774 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.h
+	<Windows.h>
+	"SerialPort.h"
+	"DataNode.h"
+
+1445372358 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.h
+	<stdio.h>
+	<stdbool.h>
+	<Windows.h>
+	<tchar.h>
+
+1445201899 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\recognition.c
+	"recognition.h"
+
+1445201889 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\recognition.h
+	"SPRING.h"
+
+1445378173 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.c
+	"SerialPort.h"
+
+1445448059 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.c
+	"SPRING.h"
+
+1445448108 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<process.h>
+	<time.h>
+	"PktParser.h"
+	"SerialPort.h"
+	"DataNode.h"
+	"DataCalibrator.h"
+	"FileUtil.h"
+	"SPRING.h"
+	<string.h>
+
