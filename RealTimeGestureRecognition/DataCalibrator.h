@@ -7,7 +7,7 @@
 #include <float.h>    //used by isFiniteNumber method
 #include "GSLMatrixs.h"
 
-#define VALID_CALI_COVER_RATE 0.1
+#define VALID_CALI_COVER_RATE 0.25
 
 bool isCalibratorValid(double X[], double Y[], double Z[], int len);
 
