@@ -135,6 +135,8 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue)
                 //report the right optimal subsequence
                 switch(t)
                 {
+                    case TARGET_TYPE:/*printf("\n\n!!!!!!!!\nsuccess!\ntarget!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);*/is_gesture = TARGET_TYPE;break;
                     case POINT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = POINT_TYPE;break;
                     case ROTATE_RIGHT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate right!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
@@ -147,8 +149,6 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue)
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = STAND_UP_TYPE;break;
                     case SIT_DOWN_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nsit down!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = SIT_DOWN_TYPE;break;
-                    case TARGET_TYPE:/*printf("\n\n!!!!!!!!\nsuccess!\ntarget!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);*/is_gesture = TARGET_TYPE;break;
                     case WALK_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nwalk!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = WALK_TYPE;break;
 
