@@ -369,7 +369,22 @@ bool calibrateMagData(double magDataX[], double magDataY[], double magDataZ[], d
         magDataX[i] = gsl_matrix_get(result, 0, i);
         magDataY[i] = gsl_matrix_get(result, 1, i);
         magDataZ[i] = gsl_matrix_get(result, 2, i);
-        heading[i] = atan2(-1.0 * magDataX[i], magDataY[i]) * 57.3 + 180.0;
+       	heading[i] = atan2(-1.0 * magDataY[i], magDataX[i]) * 57.3 ;
+
+    // Change the pointing direction from X-axis to Y-axis
+        heading[i] = heading[i] + 90;
+
+    // Normalize to 0-360
+		  if (heading[i] < 0)
+		  {
+		    heading[i] = 360 + heading[i];
+		  }
+
+		  if (heading[i] > 360)
+		  {
+		      heading[i] = heading[i] - 360;
+		  }
+
 //		if(i < caliNum)
 //			printf("[%lf, %lf, %lf] \n", magDataX[i], magDataY[i], magDataZ[i] );
     }

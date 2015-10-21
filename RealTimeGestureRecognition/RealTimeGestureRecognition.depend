@@ -247,3 +247,88 @@
 	"SPRING.h"
 	<string.h>
 
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\datanode.c
+	"DataNode.h"
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\datanode.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\fileutil.c
+	"FileUtil.h"
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\fileutil.h
+	<stdio.h>
+	"DataNode.h"
+	"SPRING.h"
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\spring.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<math.h>
+	<float.h>
+	"DataNode.h"
+
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\gslmatrixs.c
+	"GSLMatrixs.h"
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\gslmatrixs.h
+	<stdio.h>
+	<math.h>
+	<gsl/gsl_matrix.h>
+	<gsl/gsl_linalg.h>
+	<gsl/gsl_blas.h>
+	<gsl/gsl_eigen.h>
+
+1445406340 source:d:\github\motionnetproject\realtimegesturerecognition\main.c
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	<process.h>
+	<time.h>
+	"PktParser.h"
+	"SerialPort.h"
+	"DataNode.h"
+	"DataCalibrator.h"
+	"FileUtil.h"
+	"SPRING.h"
+	<string.h>
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\pktparser.h
+	<Windows.h>
+	"SerialPort.h"
+	"DataNode.h"
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\serialport.h
+	<stdio.h>
+	<stdbool.h>
+	<Windows.h>
+	<tchar.h>
+
+1445406339 d:\github\motionnetproject\realtimegesturerecognition\datacalibrator.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<float.h>
+	"GSLMatrixs.h"
+
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\pktparser.c
+	"PktParser.h"
+
+1445406340 source:d:\github\motionnetproject\realtimegesturerecognition\recognition.c
+	"recognition.h"
+
+1445406340 d:\github\motionnetproject\realtimegesturerecognition\recognition.h
+	"SPRING.h"
+
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\serialport.c
+	"SerialPort.h"
+
+1445406339 source:d:\github\motionnetproject\realtimegesturerecognition\spring.c
+	"SPRING.h"
+
+1445406444 source:d:\github\motionnetproject\realtimegesturerecognition\datacalibrator.c
+	"DataCalibrator.h"
+
