@@ -170,7 +170,6 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue)
         }
     }
 
-
     //check whether the current subsequence can be determined as a temporary optimal subsequence
     if(grProcess->distanceArray[m] <= threshold && grProcess->distanceArray[m] < *dmin)
     {

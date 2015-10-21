@@ -11,8 +11,9 @@
 #include "FileUtil.h"
 #include "SPRING.h"
 #include <string.h>
+#include "TargetRecognition.h"
 
-#define MAG_CALI_TIME 5 //the time need to collect initial data, in seconds.
+#define MAG_CALI_TIME 20 //the time need to collect initial data, in seconds.
 
 const PktData ZERO_PKT = {0.0, 0.0};
 
@@ -86,6 +87,8 @@ void initCalibrator(HANDLE hComm) {
 }
 
 void ThreadFunc(Params* params) {
+    double headingFrom2To1 = 315;
+
     printf("=========================================================================\n");
     printf("                 SubThread %ld is watching over %s port \n", GetCurrentThreadId(), params->gszPort);
     printf("=========================================================================\n");
@@ -224,8 +227,9 @@ void ThreadFunc(Params* params) {
 
                     if(trueNum >= 20) {
                         /** compute target using the list of the target data list */
+                        int target = pickTarget(*targetHead, headingFrom2To1);
 
-                        printf("\n!!!!!!!!!!!!!!!!!!!!!!%s target selected!!!!!!!!!!!!!!!!!!\n", params->gszPort);
+                        printf("\n!!!!!!!!!!!!!!!!!!!!!!%s target %d selected!!!!!!!!!!!!!!!!!!\n", params->gszPort,target);
                         trueNum = 0;
                         clear_list(targetHead);
                         hasTarget = true;
@@ -266,7 +270,6 @@ void ThreadFunc(Params* params) {
 
                     //compare_list_and_delete_queue(queue,startList,4);
             }
-
 
             int magLen = get_queue_length(queue);
             printf("Actual mag data length: %d\n", magLen);

@@ -98,8 +98,6 @@ bool compare_two_position(SqQueue* queue, int a, int b) {
     }
 }
 
-
-
 bool equals(PktData data1, PktData data2) {
 	if ((data1.accX == data2.accX) && (data1.accY == data2.accY) && (data1.accZ == data2.accZ)
 	        && (data1.gyroX == data2.gyroX) && (data1.gyroY == data2.gyroY) && (data1.gyroZ == data2.gyroZ)
@@ -123,7 +121,6 @@ DataHeadNode* create_list_with_head() {
 	ptr->tail = NULL;
 	return ptr;
 }
-
 
 DataNode* create_node(PktData packetData) {
 //	printf(" malloc memory\n");
@@ -191,7 +188,6 @@ bool delete_from_list_end( DataHeadNode *pHead) {
 	pHead->length --;
 	return true;
 }
-
 
 bool delete_from_list_head(DataHeadNode *pHead) {
 	DataNode *pNext;
