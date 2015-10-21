@@ -11,8 +11,9 @@
 #include "FileUtil.h"
 #include "SPRING.h"
 #include <string.h>
+#include "TargetRecognition.h"
 
-#define MAG_CALI_TIME 5 //the time need to collect initial data, in seconds.
+#define MAG_CALI_TIME 20 //the time need to collect initial data, in seconds.
 
 const PktData ZERO_PKT = {0.0, 0.0};
 
@@ -86,6 +87,8 @@ void initCalibrator(HANDLE hComm) {
 }
 
 void ThreadFunc(Params* params) {
+    double headingFrom2To1 = 315;
+
     printf("=========================================================================\n");
     printf("                 SubThread %ld is watching over %s port \n", GetCurrentThreadId(), params->gszPort);
     printf("=========================================================================\n");
@@ -97,7 +100,10 @@ void ThreadFunc(Params* params) {
     } else {
         printf("serial port %s opened \n", params->gszPort);
 
+        SqQueue * queue;
+
         if (setupPort(hComm)) {
+
             // all sensors use the same calibration matrix and offset
             while(isCalibratorInitialized == false) {
                 if(isCalibratorBeingInitialized == true)
@@ -109,7 +115,7 @@ void ThreadFunc(Params* params) {
 
             printf("======================= Now collect test data!! =================== \n");
 
-            SqQueue * queue = create_empty_queue();
+            queue = create_empty_queue();
 
             char rawDataFileName[60];  			//The file stores raw data
             char correctedDataFileName[60];  	//The file stores corrected magnetic data
@@ -137,17 +143,29 @@ void ThreadFunc(Params* params) {
             double timeLimit[DTW_NUM] = {TARGET_TIMELIMIT,POINT_TIMELIMIT,ROTATE_RIGHT_TIMELIMIT,ROTATE_LEFT_TIMELIMIT
                 ,SLIDE_OVER_TIMELIMIT,STAND_UP_TIMELIMIT,SIT_DOWN_TIMELIMIT,WALK_TIMELIMIT};
 
+            int initialNum = 0;
+            int initialStart = 0;
+            if(params->sensorType == WRIST_TYPE)
+            {
+                initialNum = 5;
+                initialStart = 0;
+            }
+            else
+            {
+                initialNum = 3;
+                initialStart = 5;
+            }
             //initialize the four models and their GestureRecognitionProcess
             //the order is :
-            //0->point
-            //1->rotate right
-            //2->rotate left
-            //3->slide over
-            OriginalGesture *og[DTW_NUM];
-            GRProcess grp[DTW_NUM];
+            //1->point
+            //2->rotate right
+            //3->rotate left
+            //4->slide over
+            OriginalGesture *og[initialNum];
+            GRProcess grp[initialNum];
             int gt = 0;
-            for(gt = 0; gt < DTW_NUM; gt++) {
-                og[gt] = read_file_to_init_original_gesture(gestureModel[gt]);
+            for(gt = 0; gt < initialNum; gt++) {
+                og[gt] = read_file_to_init_original_gesture(gestureModel[gt + initialStart]);
                 int m = og[gt]->m;
                 //Pay attention to Free memory !!!
                 double *distanceArray = (double *)malloc(sizeof(double) * (m + 1));
@@ -173,56 +191,84 @@ void ThreadFunc(Params* params) {
                 grp[gt].startArrayLast = startArrayLast;
                 grp[gt].timeArray = timeArray;
                 grp[gt].timeArrayLast = timeArrayLast;
-                grp[gt].threshold = threshold[gt];
+                grp[gt].threshold = threshold[gt + initialStart];
                 grp[gt].te = te;
                 grp[gt].ts = ts;
                 grp[gt].times = 0;
                 grp[gt].times = 0;
-                grp[gt].type = gt;
-                grp[gt].timeLimit = timeLimit[gt];
+                grp[gt].type = gt + initialStart;
+                grp[gt].timeLimit = timeLimit[gt + initialStart];
             }
 
             //Before read, flush the buffer.
             purgePort(hComm);
 
-            int trueNum = 0;
-            bool hasTarget = false;
-            DataHeadNode *targetHead = create_list_with_head();
+            if(params->sensorType == WRIST_TYPE)
+            {
+                int trueNum = 0;
+                bool hasTarget = false;
+                DataHeadNode *targetHead = create_list_with_head();
 
-            PktData pktData;
-            int i;
-            for(i = 0; i < params->magDataNum; i ++) {
-                pktData = blockingReadOnePacket(hComm);
-                if(equals(pktData, ZERO_PKT)) {
-                    continue;
+                PktData pktData;
+                int i;
+                for(i = 0; i < params->magDataNum; i ++) {
+                    pktData = blockingReadOnePacket(hComm);
+                    if(equals(pktData, ZERO_PKT)) {
+                        continue;
+                    }
+                    //Notice: it will override original raw data if queue is full
+                    int position = add_to_queue(queue, pktData);
+
+                    //input the current data into the SPRING
+                    if(SPRING(pktData, &grp[0],position, queue) == TARGET_TYPE) {
+                        trueNum++;
+                        add_to_list_head(targetHead, pktData);
+                    }
+
+                    if(trueNum >= 20) {
+                        /** compute target using the list of the target data list */
+                        int target = pickTarget(*targetHead, headingFrom2To1);
+
+                        printf("\n!!!!!!!!!!!!!!!!!!!!!!%s target %d selected!!!!!!!!!!!!!!!!!!\n", params->gszPort,target);
+                        trueNum = 0;
+                        clear_list(targetHead);
+                        hasTarget = true;
+                    }
+
+                    if(hasTarget) {
+                        int l = 0;
+                        for(l = 1; l <= initialNum - 1; l++) {
+                            SPRING(pktData, &grp[l],position, queue);
+                        }
+                    }
+
+                    //compare_list_and_delete_queue(queue,startList,4);
                 }
-                //Notice: it will override original raw data if queue is full
-                int position = add_to_queue(queue, pktData);
 
-                //input the current data into the SPRING
-                if(SPRING(pktData, &grp[0],position, queue) == TARGET_TYPE) {
-                    trueNum++;
-                    add_to_list_head(targetHead, pktData);
-                }
+                free_list(targetHead);
+            }
+            else if(params->sensorType == THIGH_TYPE)
+            {
+                int trueNum = 0;
 
+                PktData pktData;
+                int i;
+                for(i = 0; i < params->magDataNum; i ++) {
+                    pktData = blockingReadOnePacket(hComm);
+                    if(equals(pktData, ZERO_PKT)) {
+                        continue;
+                    }
+                    //Notice: it will override original raw data if queue is full
+                    int position = add_to_queue(queue, pktData);
 
-                if(trueNum >= 20) {
-                    /** compute target using the list of the target data list */
-
-                    printf("\n!!!!!!!!!!!!!!!!!!!!!!%s target selected!!!!!!!!!!!!!!!!!!\n", params->gszPort);
-                    trueNum = 0;
-                    clear_list(targetHead);
-                    hasTarget = true;
-                }
-
-                if(hasTarget) {
+                    //input the current data into the SPRING
                     int l = 0;
-                    for(l = 1; l <= 4; l++) {
+                    for(l = 0; l <= initialNum - 1; l++) {
                         SPRING(pktData, &grp[l],position, queue);
                     }
                 }
 
-                //compare_list_and_delete_queue(queue,startList,4);
+                    //compare_list_and_delete_queue(queue,startList,4);
             }
 
             int magLen = get_queue_length(queue);
@@ -242,7 +288,6 @@ void ThreadFunc(Params* params) {
 
             free_queue(queue);
 
-            free_list(targetHead);
         }
         closePort(hComm);
     }
@@ -257,6 +302,7 @@ int main(int argc, char *argv[]) {
 
     HANDLE handle[portCount];
     Params params[portCount];
+    int sensorType[2] = {WRIST_TYPE,THIGH_TYPE};
 
     int portId;
     int i;
@@ -270,10 +316,12 @@ int main(int argc, char *argv[]) {
         printf("Input the count of mag data need to be collected this time :\n");
         scanf("%d", &param.magDataNum);
 
-        params[i] = param;
+        param.sensorType = sensorType[i];
 
+        params[i] = param;
         //printf("Param %d : %s,  %d \n", i, params[i].gszPort, params[i].magDataNum);
     }
+
 
     for(i = 0; i < portCount; i ++)
         handle[i] = (HANDLE) _beginthreadex(NULL, 0, ThreadFunc, &(params[i]), 0, NULL);
