@@ -1,9 +1,10 @@
 #include "DataCalibrator.h"
 
+// Global params, used by all sensors in the same room
 gsl_vector* offset = NULL;
 gsl_matrix* w_invert = NULL;
 
-
+// Whether reasonable ...
 bool isCalibratorValid(double X[], double Y[], double Z[], int len) {
     // - 90 ~ + 90  ===> 0 ~ 180
     int isValidBitMap[3][181] = {{0}};
@@ -21,13 +22,12 @@ bool isCalibratorValid(double X[], double Y[], double Z[], int len) {
         if((roundZ <= 180) && (roundZ >= 0))
             isValidBitMap[2][roundZ] = 1;
     }
-
     //Now use round as count
     roundX = 0;
     roundY = 0;
     roundZ = 0;
 
-    for(i = 0; i < 181; i ++) {
+    for(i = 0; i <= 180; i ++) {
         if(isValidBitMap[0][i] == 1)
             roundX ++;
         if(isValidBitMap[1][i] == 1)
@@ -42,30 +42,14 @@ bool isCalibratorValid(double X[], double Y[], double Z[], int len) {
     return (coverRate > VALID_CALI_COVER_RATE) ? true : false ;
 }
 
-bool IsFiniteNumber(double x) {
-    return (x <= DBL_MAX && x >= -DBL_MAX);
+bool isFiniteNumber(double x) {
+    int result = gsl_finite(x);
+    if(result == 0)
+        printf("invert matrix is not a real matrix!\n");
+    return result;
 }
 
-//bool isCalibratorInitialized() {
-//    if(offset == NULL || w_invert == NULL) {
-//        printf("\n magnetic calibrator not initialized!\n");
-//        return false;
-//    }
-//    return true;
-//}
-
-//gsl_vector* calculateOffset(gsl_matrix * data, int len) {
-//	gsl_vector * x = createEmptyVector(len);
-//	gsl_vector * y = createEmptyVector(len);
-//	gsl_vector * z = createEmptyVector(len);
-//
-//	gsl_matrix_get_col(x, data, 0);
-//	gsl_matrix_get_col(y, data, 1);
-//	gsl_matrix_get_col(z, data, 2);
-
 gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
-//	printf("calculate offset!\n");
-
     gsl_vector * x = createVector(X, len);
     gsl_vector * y = createVector(Y, len);
     gsl_vector * z = createVector(Z, len);
@@ -73,8 +57,6 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
     gsl_vector_scale(x, 0.3);
     gsl_vector_scale(y, 0.3);
     gsl_vector_scale(z, 0.3);
-
-    //printf("data length %d!\n" + x->size);
 
     gsl_vector * xx = vectorDotMultiply(x,x);
     gsl_vector * yy = vectorDotMultiply(y,y);
@@ -109,8 +91,6 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
     setMatrixColumn(D, 7, y2);
     setMatrixColumn(D, 8, z2);
 
-//	printf("D [%d, %d]!\n", D->size1, D->size2);
-//	printf("free x,y,z and so on!\n");
     freeVector(x);
     freeVector(y);
     freeVector(z);
@@ -124,13 +104,8 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
     freeVector(y2);
     freeVector(z2);
 
-
     gsl_matrix * v = solveEquationMatrix(D);
     freeMatrix(D);
-
-//	printf("v !\n");
-//	printMatrix(v);
-
     gsl_matrix * A = generateEllipsoid(v);
 
     gsl_matrix * subV = createEmptyMatrix(3,1);
@@ -140,10 +115,6 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
 
     freeMatrix(v);
 
-//	printf("A and subV!\n");
-//	printMatrix(A);
-//	printMatrix(subV);
-
     // offset = A( 1:3, 1:3 ) \ [ v(7); v(8); v(9) ];
     gsl_matrix * offsetM = leftDivide(A, subV);
     freeMatrix(A);
@@ -152,8 +123,7 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
     gsl_vector * offsetV = createEmptyVector(3);
     gsl_matrix_get_col(offsetV, offsetM, 0);
 
-    printf("offset vector!\n\n");
-//	printMatrix(offsetM);
+    printf("offset vector: ");
     printVector(offsetV);
 
     freeMatrix(offsetM);
@@ -161,21 +131,7 @@ gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len) {
     return offsetV;
 }
 
-
-//gsl_matrix* calculateConvertMatrix(gsl_vector* offset, gsl_matrix * data, int len) {
-//	gsl_vector * x = createEmptyVector(len);
-//	gsl_vector * y = createEmptyVector(len);
-//	gsl_vector * z = createEmptyVector(len);
-//
-//	gsl_matrix_get_col(x, data, 0);
-//	gsl_matrix_get_col(y, data, 1);
-//	gsl_matrix_get_col(z, data, 2);
-
 gsl_matrix* calculateConvertMatrix(gsl_vector* offsetV, double X[], double Y[], double Z[], int len) {
-//
-//	printf("\n\nCalculate convert matrix, we have Offset\n");
-//	printVector(offset);
-
     gsl_vector * x = createVector(X, len);
     gsl_vector * y = createVector(Y, len);
     gsl_vector * z = createVector(Z, len);
@@ -221,42 +177,26 @@ gsl_matrix* calculateConvertMatrix(gsl_vector* offsetV, double X[], double Y[], 
     gsl_matrix* p = solveEquationMatrix(K);
     freeMatrix(K);
 
-//	printf("p \n");
-//	printMatrix(p);
-
     gsl_matrix * A = generateEllipsoid(p);
     freeMatrix(p);
-
-//	printf("A \n");
-//	printMatrix(A);
 
     //EIG SYSTEM
     gsl_vector *eval = gsl_vector_alloc (3);
     gsl_matrix *evec = gsl_matrix_alloc (3, 3);
 
     gsl_eigen_symmv_workspace * w = gsl_eigen_symmv_alloc (3);
-
     gsl_eigen_symmv (A, eval, evec, w);
-
     gsl_eigen_symmv_free (w);
     freeMatrix(A);
-
-//	printf("\neval and evec \n");
-//	printVector(eval);
-//	printMatrix(evec);
 
     int i;
     gsl_vector* radii = constantDivideVector(1.0, eval);
     for(i = 0; i < 3; i ++)
         gsl_vector_set(radii, i,
                        sqrt( gsl_vector_get(radii, i)));
-//	printf("\nradii \n");
-//	printVector(radii);
 
     double Bfield = pow( gsl_vector_get(radii, 0) * gsl_vector_get(radii, 1) * gsl_vector_get(radii, 2) , 1.0 /3 );
     freeVector(radii);
-
-//	printf("\nBfield: %f\n", Bfield);
 
     // calculate transformation matrix elipsoidal to spherical
     // W_inverted = evecs * sqrt(evals) * inv(evecs) * Bfield
@@ -277,7 +217,7 @@ gsl_matrix* calculateConvertMatrix(gsl_vector* offsetV, double X[], double Y[], 
 
     gsl_matrix_scale(w_invertM, Bfield);
 
-    printf("\n\ninverted matrix: \n");
+    printf("\ninverted matrix: ");
     printMatrix(w_invertM);
 
     freeVector (eval);
@@ -285,11 +225,10 @@ gsl_matrix* calculateConvertMatrix(gsl_vector* offsetV, double X[], double Y[], 
     freeMatrix(sqrtEvals);
     freeMatrix(mult);
     freeMatrix(invEvecs);
-    if(! IsFiniteNumber(gsl_matrix_get(w_invertM, 0, 0))) {
+    if(! isFiniteNumber(gsl_matrix_get(w_invertM, 0, 0))) {
         freeMatrix(w_invertM);
         return NULL;
     }
-
     return w_invertM;
 }
 
@@ -304,15 +243,12 @@ void clearCalibrator() {
         freeVector(offset);
         printf("clear offset\n");
     }
-
     if(w_invert != NULL) {
         freeMatrix(w_invert);
-        printf("clear invert matrix\n");
+        printf("clear invert matrix");
     }
-
     printf("\n===========================  Clear Calibrator OK =======================\n");
 }
-
 
 /**
 magData = magData*0.3;
@@ -325,20 +261,8 @@ correctedM [3][n] = W_inverted[3][3] * 	  [ magDataX';
 											magDataZ'];
 */
 bool calibrateMagData(double magDataX[], double magDataY[], double magDataZ[], double heading[], int len) {
-    printf("Doing Calibration...\n");
-    if(offset == NULL || w_invert == NULL || !IsFiniteNumber(gsl_matrix_get(w_invert, 0, 0)))
+    if(offset == NULL || w_invert == NULL || !isFiniteNumber(gsl_matrix_get(w_invert, 0, 0)))
         return false;
-
-//	int caliNum;
-//
-//	printf("input the count of mag data to be corrected.\n");
-//	scanf("%d", &caliNum);
-
-//	int i;
-//	for(i = 0; i < caliNum; i ++) {
-//		printf("[%lf, %lf, %lf] \n", magDataX[i], magDataY[i], magDataZ[i] );
-//	}
-
 
     gsl_vector * x = createVector(magDataX, len);
     gsl_vector * y = createVector(magDataY, len);
@@ -363,36 +287,28 @@ bool calibrateMagData(double magDataX[], double magDataY[], double magDataZ[], d
 
     gsl_matrix * result = matrixMultiplyMatrix(w_invert, magData);
 
-    //printf("\nAfter calibration! \n");
     int i;
     for(i = 0; i < len; i ++) {
         magDataX[i] = gsl_matrix_get(result, 0, i);
         magDataY[i] = gsl_matrix_get(result, 1, i);
         magDataZ[i] = gsl_matrix_get(result, 2, i);
-       	heading[i] = atan2(-1.0 * magDataY[i], magDataX[i]) * 57.3 ;
+        heading[i] = atan2(-1.0 * magDataY[i], magDataX[i]) * 57.3 ;
 
-    // Change the pointing direction from X-axis to Y-axis
+        // Change the pointing direction from X-axis to Y-axis
         heading[i] = heading[i] + 90;
 
-    // Normalize to 0-360
-		  if (heading[i] < 0)
-		  {
-		    heading[i] = 360 + heading[i];
-		  }
+        // Normalize to 0-360
+        if (heading[i] < 0) {
+            heading[i] = 360 + heading[i];
+        }
 
-		  if (heading[i] > 360)
-		  {
-		      heading[i] = heading[i] - 360;
-		  }
-
-//		if(i < caliNum)
-//			printf("[%lf, %lf, %lf] \n", magDataX[i], magDataY[i], magDataZ[i] );
+        if (heading[i] > 360) {
+            heading[i] = heading[i] - 360;
+        }
     }
 
     freeMatrix(magData);
     freeMatrix(result);
-    printf("Calibration Over ....\n");
+    printf("Calibration Done!\n");
     return true;
 }
-
-

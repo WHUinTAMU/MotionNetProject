@@ -1,19 +1,16 @@
 #ifndef DATACALIBRATOR_H
 #define DATACALIBRATOR_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <float.h>    //used by isFiniteNumber method
+#include <gsl/gsl_math.h>
+
 #include "GSLMatrixs.h"
 
-#define VALID_CALI_COVER_RATE 0.25
+#define VALID_CALI_COVER_RATE 0.5
 
 bool isCalibratorValid(double X[], double Y[], double Z[], int len);
 
-bool IsFiniteNumber(double x);
-
-//bool isCalibratorInitialized();
+bool isFiniteNumber(double x);
 
 gsl_vector* calculateOffset(double X[], double Y[], double Z[], int len);
 
