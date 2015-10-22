@@ -8,9 +8,7 @@ unsigned int getLocalTime() {
 	return(((now.wHour * 60 + now.wMinute) * 60 + now.wSecond) * 1000 + now.wMilliseconds);
 }
 
-
 int toMs(unsigned char a, unsigned char b, unsigned int overflowTime) {
-
 	float myFlt = ((float)((overflowTime + (a << 8) + b) * 1000)) / 500000.0f;
 	unsigned int myInt = (unsigned int)(myFlt + 0.5f);
 	return myInt;
@@ -33,8 +31,6 @@ PktData blockingReadOnePacket(HANDLE hComm) {
 	unsigned char cData = 0;
 	unsigned char pData = 0;
 	int dataCount = 1;
-
-	//printf("Accl X\tAccl Y\tAccl Z\tGyro X\tGyro Y\tGyro Z\tMag X\tMag Y\tMag Z\tRPkt#\tRtime\tLPkt#\tLtime\r\n");
 
 	// find the start of packet
 	while (((pData != DLE) || (cData != SOH))) {
@@ -63,7 +59,6 @@ PktData blockingReadOnePacket(HANDLE hComm) {
 	}
 
 	if (dataCount == 23) {
-
 		int accX = uCharToInt(packet[1], packet[2]) ;
 		int accY = uCharToInt(packet[3], packet[4]);
 		int accZ = uCharToInt(packet[5], packet[6]);
@@ -73,13 +68,7 @@ PktData blockingReadOnePacket(HANDLE hComm) {
 		int magX = uCharToInt(packet[13], packet[14]);
 		int magY = uCharToInt(packet[15], packet[16]);
 		int magZ = uCharToInt(packet[17], packet[18]);
-//		FILE *stream = fopen("C:/Users/xing/Desktop/data.txt", "a+");
-//		// All the data is resolved here, including 3-axis acceleration, 3-axis gyroscope, 3-axis magnetometer data and timestamp
-//		fprintf(stream, "%6d, %6d, %6d, %6d, %6d, %6d, %4d, %4d, %4d\r\n",
-//		        accX,accY,accZ,
-//		        gyroX,gyroY,gyroZ,
-//		        magX,magY,magZ);
-//		fclose(stream);
+
 		pktData.accX = accX / 4096.0 / 2;
 		pktData.accY = accY / 4096.0 / 2;
 		pktData.accZ = accZ / 4096.0 / 2;
@@ -92,6 +81,5 @@ PktData blockingReadOnePacket(HANDLE hComm) {
 		pktData.pktNumber = (PKT_NUMBER ++);
 		pktData.timeStamp = getLocalTime();
 	}
-
 	return pktData;
 }

@@ -1,8 +1,8 @@
 #ifndef DATANODE_H
 #define DATANODE_H
 
-#include<stdio.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #define WRIST_TYPE 0
@@ -10,7 +10,6 @@
 
 typedef struct multiParam{
     char gszPort[20];
-    //int caliDataNum;
     int magDataNum;
     int sensorType;
 }Params;
@@ -87,7 +86,6 @@ bool equals(PktData data1, PktData data2);
 //Create an empty list with the headNode that stores the count of the nodes.
 DataHeadNode* create_list_with_head();
 
-//Create a new DataNode
 DataNode* create_node(PktData packetData);
 
 void add_to_list_end(DataHeadNode *pHead, PktData packetData);
