@@ -60,14 +60,14 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="SerialPort.h" />
+		<Unit filename="TargetRecognition.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="TargetRecognition.h" />
 		<Unit filename="TestData.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="recognition.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="recognition.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

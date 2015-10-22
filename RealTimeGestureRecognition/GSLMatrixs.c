@@ -29,7 +29,6 @@ gsl_matrix * copyMatrix(gsl_matrix * m) {
 }
 
 void freeMatrix(gsl_matrix * m) {
-//	printf("Free matrix!\n");
     gsl_matrix_free(m);
 }
 
@@ -107,7 +106,7 @@ gsl_matrix *  matrixAddConstant(gsl_matrix * m, double val) {
     return result;
 }
 
-//A LeftDivide B = invert(A)*B
+//A LeftDivide B = invert(A) * B
 gsl_matrix *  leftDivide(gsl_matrix * lM, gsl_matrix * rM) {
     gsl_matrix * invertlM = invert(lM);
     gsl_matrix * result = matrixMultiplyMatrix(invertlM, rM);
@@ -178,7 +177,6 @@ gsl_vector * createVector(double array[], int len) {
 }
 
 void freeVector(gsl_vector * v) {
-//	printf("Free vector!\n");
     gsl_vector_free(v);
 }
 
@@ -237,7 +235,7 @@ gsl_vector *  diag(gsl_matrix * m ) {
 }
 
 
-// Notice: if we use other methods, we do malloc some memory, so we MUST free the memory.
+// Notice: if we use methods that malloc some memory, we MUST free the memory.
 // solve the normal system of equations and find fitted ellipsoid parameters
 gsl_matrix *  solveEquationMatrix(gsl_matrix * m) {
     gsl_matrix * transM = transpose(m);

@@ -1,32 +1,18 @@
 #include "SerialPort.h"
 
-//HANDLE hComm;
-//SYSTEMTIME etime;
-
 HANDLE openPort(TCHAR *gszPort) {
-    printf("try to open the port %s \n", gszPort);
-
     HANDLE hComm = CreateFile(gszPort,                                  // pointer to name of the file
-                       GENERIC_READ | GENERIC_WRITE,					// access (read-write) mode
-                       0,                                               // share mode
-                       0,                                               // pointer to security attributes
-                       OPEN_EXISTING,									// how to create
-                       0,                                               // file attributes
-                       0);												// handle to file with attributes to copy
+                              GENERIC_READ | GENERIC_WRITE,					// access (read-write) mode
+                              0,                                               // share mode
+                              0,                                               // pointer to security attributes
+                              OPEN_EXISTING,									// how to create
+                              0,                                               // file attributes
+                              0);												// handle to file with attributes to copy
     return hComm;
 }
 
 bool setupPort(HANDLE hComm) {
-    printf("try to set up the port \n");
-
     DCB dcb;
-
-    //printf("setting up DCB\n");
-    //FillMemory(&dcb, sizeof(dcb), 0);   //initalize dcb
-    //dcb.DCBlength = sizeof(dcb);
-
-//	printf("getting DCB\n");
-
     if (!GetCommState(hComm, &dcb)) {
         printf("getDCB failed\n");
         return 0;
@@ -42,16 +28,10 @@ bool setupPort(HANDLE hComm) {
     dcb.fDtrControl = DTR_CONTROL_DISABLE;
     dcb.fRtsControl = RTS_CONTROL_DISABLE;
 
-    //      if (!BuildCommDCB("9600,n,8,1", &dcb)) {
-    //              printf("Port configuration failed\n");
-    //              return FALSE;
-    //  }
-//	printf("DCB ready for use\n");
     if (!SetCommState(hComm, &dcb)) {
         printf("failed to set port state (%ld)\n", GetLastError());
         return 0;
     } else {
-        printf("Port setup complete\n");
         return 1;
     }
 }
@@ -61,19 +41,15 @@ bool setupPort(HANDLE hComm) {
 	It can also terminate pending read or write operations on the resource.
 */
 bool purgePort(HANDLE hComm) {
-	if (PurgeComm(hComm, PURGE_RXCLEAR)) {
-	 	//printf("Port purged\n");
-		return 1;
-	}
-	else {
-		printf("Port purge failed\n");
-		return 0;
-	}
+    if (PurgeComm(hComm, PURGE_RXCLEAR)) {
+        return 1;
+    } else {
+        printf("Port purge failed\n");
+        return 0;
+    }
 }
 
 bool closePort(HANDLE hComm) {
-    printf("try to close the port \n");
-
     if (CloseHandle(hComm)) {
         printf("Port closed\n");
         return 1;
@@ -98,7 +74,7 @@ unsigned char readSByte(HANDLE hComm) {
     DWORD dwRead;
     unsigned char lpBuf;
 
-    ReadFile(hComm,                     // handle of file to read
+    ReadFile(hComm,                          // handle of file to read
              &lpBuf,                         // address of buffer that receives data
              sizeof(lpBuf),                  // number of bytes to read
              &dwRead,                        // address of number of bytes read
@@ -106,6 +82,3 @@ unsigned char readSByte(HANDLE hComm) {
     //printf("Read byte %Xh from serial port\n",lpBuf);
     return lpBuf;
 }
-
-
-

@@ -3,17 +3,19 @@
 #include <windows.h>
 #include <process.h>
 #include <time.h> //time_t time()
+#include <string.h>
 
+#include "DataCalibrator.h"
+#include "DataNode.h"
+#include "FileUtil.h"
 #include "PktParser.h"
 #include "SerialPort.h"
-#include "DataNode.h"
-#include "DataCalibrator.h"
-#include "FileUtil.h"
 #include "SPRING.h"
-#include <string.h>
 #include "TargetRecognition.h"
 
 #define MAG_CALI_TIME 20 //the time need to collect initial data, in seconds.
+
+#define INIT_LAMP_HEADING 10 //the time need to collect data for calculating the direction from lamp2 to lamp1
 
 const PktData ZERO_PKT = {0.0, 0.0};
 
@@ -34,7 +36,7 @@ void initCalibrator(HANDLE hComm) {
     int len;
 
     while (true) {
-        printf("\nCollect data in the next %d seconds!\n", MAG_CALI_TIME);
+        printf("\nCollect initial data in the next %d seconds ...... \n\n", MAG_CALI_TIME);
 
         //Before read, flush the buffer.
         purgePort(hComm);
@@ -68,13 +70,12 @@ void initCalibrator(HANDLE hComm) {
         calculateCalibrator(magDataX, magDataY, magDataZ, len);
 
         write_list_to_file("C:/Users/xing/Desktop/Raw_Initial_Data.txt", ptr);
+        clear_list(ptr);
 
         if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
             continue;
 
         write_mag_to_file("C:/Users/xing/Desktop/Corrected_Initial_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
-
-        clear_list(ptr);
 
         if(isCalibratorValid(magDataX, magDataY, magDataZ, len))
             break;
@@ -86,72 +87,136 @@ void initCalibrator(HANDLE hComm) {
     printf("\n============================  Initialize Over  ========================\n");
 }
 
+
+//calculate the heading from lamp 2 to lamp 1.
+double initHeading(HANDLE hComm) {
+    PktData pktData;
+
+    //the heading from lamp2 to lamp1
+    double sum;
+
+    //Mag data list for calculating angle
+    DataHeadNode *ptr = create_list_with_head();
+
+    int len;
+    while(true) {
+        printf("\nDetecting the direction in the next %d seconds ...... \n\n", INIT_LAMP_HEADING);
+
+        //Before read, flush the buffer.
+        purgePort(hComm);
+
+        time_t timeBegin = time(NULL);
+
+        while (true) {
+            pktData = blockingReadOnePacket(hComm);
+
+            if(equals(pktData, ZERO_PKT)) {
+                continue;
+            }
+            add_to_list_head(ptr, pktData);
+
+            if(time(NULL) - timeBegin >= MAG_CALI_TIME)
+                break;
+        }
+
+        //Start prepare double array for calculate calibrator
+        len = ptr->length;
+        printf("calculation direction data length: %d \n", len);
+
+        double magDataX[len] ;
+        double magDataY[len] ;
+        double magDataZ[len] ;
+        double heading[len];
+
+        fillMagDataArray(ptr, magDataX, magDataY, magDataZ);
+
+        write_list_to_file("C:/Users/xing/Desktop/Raw_Direction_Cal_Data.txt", ptr);
+        clear_list(ptr);
+
+        if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
+            continue;
+
+        write_mag_to_file("C:/Users/xing/Desktop/Corrected_Direction_Cal_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
+
+        //consider variance
+
+        sum = 0.0;
+        int i;
+        for(i = 0; i < len; i ++) {
+            sum += heading[i];
+        }
+
+        sum = sum / len;
+        break;
+    }
+
+    //free all list data
+    free_list(ptr);
+    return sum;
+}
+
 void ThreadFunc(Params* params) {
     double headingFrom2To1 = 315;
-
-    printf("=========================================================================\n");
-    printf("                 SubThread %ld is watching over %s port \n", GetCurrentThreadId(), params->gszPort);
-    printf("=========================================================================\n");
+    printf("======== SubThread %ld is watching over %s port ===========\n", GetCurrentThreadId(), params->gszPort);
 
     HANDLE hComm = openPort(params->gszPort);
     if (hComm == INVALID_HANDLE_VALUE) {
         printf("failed to open serial port %s \n", params->gszPort);
         return;
     } else {
-        printf("serial port %s opened \n", params->gszPort);
-
-        SqQueue * queue;
-
         if (setupPort(hComm)) {
-
             // all sensors use the same calibration matrix and offset
             while(isCalibratorInitialized == false) {
                 if(isCalibratorBeingInitialized == true)
                     continue;
+
                 isCalibratorBeingInitialized = true;
                 printf("\n************** please rotate your sensor with port %s *************\n", params->gszPort);
                 initCalibrator(hComm);
+
+                printf("\n************** please point %s from lamp2 to lamp1 now*************\n", params->gszPort);
+                Sleep( 5000 );
+
+                printf("\n************** Heading: %f **************\n", initHeading(hComm));
             }
 
-            printf("======================= Now collect test data!! =================== \n");
+            printf("======================= collect test data for %s =================== \n", params->gszPort);
 
-            queue = create_empty_queue();
+            SqQueue * queue = create_empty_queue();
 
             char rawDataFileName[60];  			//The file stores raw data
             char correctedDataFileName[60];  	//The file stores corrected magnetic data
 
-            printf("========================  THE TEST  ====================== \n");
             sprintf(rawDataFileName, "C:/Users/xing/Desktop/%s_Raw_Mag_Data.txt",params->gszPort);
             sprintf(correctedDataFileName, "C:/Users/xing/Desktop/%s_Corrected_Mag_Data.txt",params->gszPort);
 
-
             //the models of the four gestures
             char *gestureModel[DTW_NUM] = {"./gesture_model/target.txt"
-                ,"./gesture_model/point.txt"
-                ,"./gesture_model/rotate_right.txt"
-                ,"./gesture_model/rotate_left.txt"
-                ,"./gesture_model/slide_over.txt"
-                ,"./activity_model/stand_up.txt"
-                ,"./activity_model/sit_down.txt"
-                ,"./activity_model/walk.txt"};
+                                           ,"./gesture_model/point.txt"
+                                           ,"./gesture_model/rotate_right.txt"
+                                           ,"./gesture_model/rotate_left.txt"
+                                           ,"./gesture_model/slide_over.txt"
+                                           ,"./activity_model/stand_up.txt"
+                                           ,"./activity_model/sit_down.txt"
+                                           ,"./activity_model/walk.txt"
+                                          };
 
             //the tresholds of four model gestures
             double threshold[DTW_NUM] = {TARGET_THRESHOLD,POINT_THRESHOLD,ROTATE_RIGHT_THRESHOLD,ROTATE_LEFT_THRESHOLD
-                ,SLIDE_OVER_THRESHOLD,STAND_UP_THRESHOLD,SIT_DOWN_THRESHOLD,WALK_THRESHOLD};
+                                         ,SLIDE_OVER_THRESHOLD,STAND_UP_THRESHOLD,SIT_DOWN_THRESHOLD,WALK_THRESHOLD
+                                        };
 
             //the time limit of four model gestures
             double timeLimit[DTW_NUM] = {TARGET_TIMELIMIT,POINT_TIMELIMIT,ROTATE_RIGHT_TIMELIMIT,ROTATE_LEFT_TIMELIMIT
-                ,SLIDE_OVER_TIMELIMIT,STAND_UP_TIMELIMIT,SIT_DOWN_TIMELIMIT,WALK_TIMELIMIT};
+                                         ,SLIDE_OVER_TIMELIMIT,STAND_UP_TIMELIMIT,SIT_DOWN_TIMELIMIT,WALK_TIMELIMIT
+                                        };
 
             int initialNum = 0;
             int initialStart = 0;
-            if(params->sensorType == WRIST_TYPE)
-            {
+            if(params->sensorType == WRIST_TYPE) {
                 initialNum = 5;
                 initialStart = 0;
-            }
-            else
-            {
+            } else {
                 initialNum = 3;
                 initialStart = 5;
             }
@@ -203,8 +268,7 @@ void ThreadFunc(Params* params) {
             //Before read, flush the buffer.
             purgePort(hComm);
 
-            if(params->sensorType == WRIST_TYPE)
-            {
+            if(params->sensorType == WRIST_TYPE) {
                 int trueNum = 0;
                 bool hasTarget = false;
                 DataHeadNode *targetHead = create_list_with_head();
@@ -246,9 +310,7 @@ void ThreadFunc(Params* params) {
                 }
 
                 free_list(targetHead);
-            }
-            else if(params->sensorType == THIGH_TYPE)
-            {
+            } else if(params->sensorType == THIGH_TYPE) {
                 int trueNum = 0;
 
                 PktData pktData;
@@ -268,13 +330,11 @@ void ThreadFunc(Params* params) {
                     }
                 }
 
-                    //compare_list_and_delete_queue(queue,startList,4);
+                //compare_list_and_delete_queue(queue,startList,4);
             }
 
             int magLen = get_queue_length(queue);
-            printf("Actual mag data length: %d\n", magLen);
 
-            //This is the same heading in Cali.mat
             double heading[magLen];
 
             write_queue_to_file(rawDataFileName, queue);
@@ -283,28 +343,26 @@ void ThreadFunc(Params* params) {
 
             write_mag_to_file(correctedDataFileName, queue->magXData, queue->magYData, queue->magZData, heading, magLen);
 
-            //clear_queue(queue);
-            printf("\nSee %s \nand %s\nfor more detail!\n",rawDataFileName, correctedDataFileName);
+            printf("\nSee %s \nand %s\nfor more detail!\n\n",rawDataFileName, correctedDataFileName);
 
             free_queue(queue);
-
         }
         closePort(hComm);
     }
 }
 
-
 int main(int argc, char *argv[]) {
-
     printf("how many sensors do you have :\n");
     int portCount = 0;
     scanf("%d", &portCount);
 
     HANDLE handle[portCount];
     Params params[portCount];
+
+    //Consider enum
     int sensorType[2] = {WRIST_TYPE,THIGH_TYPE};
 
-    int portId;
+    int portId;     //e.g Com#3 's portId is 3.
     int i;
     for(i = 0; i < portCount; i ++) {
         Params param;
@@ -317,12 +375,9 @@ int main(int argc, char *argv[]) {
         scanf("%d", &param.magDataNum);
 
         param.sensorType = sensorType[i];
-
         params[i] = param;
         //printf("Param %d : %s,  %d \n", i, params[i].gszPort, params[i].magDataNum);
     }
-
-
     for(i = 0; i < portCount; i ++)
         handle[i] = (HANDLE) _beginthreadex(NULL, 0, ThreadFunc, &(params[i]), 0, NULL);
 
