@@ -92,13 +92,61 @@ void initCalibrator(HANDLE hComm) {
 double initHeading(HANDLE hComm) {
     PktData pktData;
 
+    //the models of the four gestures
+    char *gestureModel = "./gesture_model/target.txt";
+
+    //the tresholds of four model gestures
+    double threshold = TARGET_THRESHOLD;
+
+    //the time limit of four model gestures
+    double timeLimit = TARGET_TIMELIMIT;
+
+    //initialize the four models and their GestureRecognitionProcess
+    OriginalGesture *og;
+    GRProcess grp;
+    og = read_file_to_init_original_gesture(gestureModel);
+    int m = og->m;
+    //Pay attention to Free memory !!!
+    double *distanceArray = (double *)malloc(sizeof(double) * (m + 1));
+    double *distanceArrayLast = (double *)malloc(sizeof(double) * (m + 1));
+    int *startArray = (int *)malloc(sizeof(int) * (m + 1));
+    int *startArrayLast = (int *)malloc(sizeof(int) * (m + 1));
+    long int *timeArray = (long int *)malloc(sizeof(long int) * (m + 1));
+    long int *timeArrayLast = (long int *)malloc(sizeof(long int) * (m + 1));
+    double dmin = DBL_MAX;
+    int te = 1;
+    int ts = 1;
+    int k = 0;
+    for(k = 0; k <= m; k++) {
+        distanceArrayLast[k] = DBL_MAX;
+        startArrayLast[k] = 0;
+        timeArrayLast[k] = 0;
+    }
+    grp.distanceArray = distanceArray;
+    grp.distanceArrayLast = distanceArrayLast;
+    grp.dmin = dmin;
+    grp.originalGesture = *(og);
+    grp.startArray = startArray;
+    grp.startArrayLast = startArrayLast;
+    grp.timeArray = timeArray;
+    grp.timeArrayLast = timeArrayLast;
+    grp.threshold = threshold;
+    grp.te = te;
+    grp.ts = ts;
+    grp.times = 0;
+    grp.times = 0;
+    grp.type = TARGET_TYPE;
+    grp.timeLimit = timeLimit;
+
     //the heading from lamp2 to lamp1
     double sum;
 
     //Mag data list for calculating angle
-    DataHeadNode *ptr = create_list_with_head();
+    SqQueue * queue = create_empty_queue();
+    int trueNum = 0;
+    DataHeadNode *targetHead = create_list_with_head();
 
-    int len;
+    int len = 50;
     while(true) {
         printf("\nDetecting the direction in the next %d seconds ...... \n\n", INIT_LAMP_HEADING);
 
@@ -113,25 +161,37 @@ double initHeading(HANDLE hComm) {
             if(equals(pktData, ZERO_PKT)) {
                 continue;
             }
-            add_to_list_head(ptr, pktData);
 
-            if(time(NULL) - timeBegin >= MAG_CALI_TIME)
+            int i;
+
+            //Notice: it will override original raw data if queue is full
+            int position = add_to_queue(queue, pktData);
+
+            //input the current data into the SPRING
+            if(SPRING(pktData, &grp,position, queue) == TARGET_TYPE) {
+                        trueNum++;
+                        add_to_list_head(targetHead, pktData);
+                    }
+
+            if(trueNum >= len) {
+
+                trueNum = 0;
                 break;
+
+            }
         }
 
         //Start prepare double array for calculate calibrator
-        len = ptr->length;
-        printf("calculation direction data length: %d \n", len);
 
         double magDataX[len] ;
         double magDataY[len] ;
         double magDataZ[len] ;
         double heading[len];
 
-        fillMagDataArray(ptr, magDataX, magDataY, magDataZ);
+        fillMagDataArray(targetHead, magDataX, magDataY, magDataZ);
 
-        write_list_to_file("C:/Users/xing/Desktop/Raw_Direction_Cal_Data.txt", ptr);
-        clear_list(ptr);
+        write_list_to_file("C:/Users/xing/Desktop/Raw_Direction_Cal_Data.txt", targetHead);
+        clear_list(targetHead);
 
         if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
             continue;
@@ -147,11 +207,14 @@ double initHeading(HANDLE hComm) {
         }
 
         sum = sum / len;
+
+        printf("\n!!!!!!!!!!!!!!!!!!!!!!2 to 1 direction is ok\n%f!!!!!!!!!!!!!!!!!!\n",sum);
         break;
     }
 
     //free all list data
-    free_list(ptr);
+    free_list(targetHead);
+    free_queue(queue);
     return sum;
 }
 
