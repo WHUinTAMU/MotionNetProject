@@ -6,7 +6,7 @@
 
 #include "GSLMatrixs.h"
 
-#define VALID_CALI_COVER_RATE 0.5
+#define VALID_CALI_COVER_RATE 0.3
 
 bool isCalibratorValid(double X[], double Y[], double Z[], int len);
 

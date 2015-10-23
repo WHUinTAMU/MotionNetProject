@@ -295,7 +295,7 @@ bool calibrateMagData(double magDataX[], double magDataY[], double magDataZ[], d
         heading[i] = atan2(-1.0 * magDataY[i], magDataX[i]) * 57.3 ;
 
         // Change the pointing direction from X-axis to Y-axis
-        heading[i] = heading[i] + 90;
+        heading[i] = heading[i] - 90;
 
         // Normalize to 0-360
         if (heading[i] < 0) {

@@ -47,6 +47,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="GSLMatrixs.h" />
+		<Unit filename="LampController.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="LampController.h" />
 		<Unit filename="PktParser.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -65,6 +69,10 @@
 		</Unit>
 		<Unit filename="TargetRecognition.h" />
 		<Unit filename="TestData.h" />
+		<Unit filename="cJSON.h" />
+		<Unit filename="cjson.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
