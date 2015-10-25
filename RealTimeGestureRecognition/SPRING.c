@@ -81,7 +81,7 @@ void update_array(GRProcess *grp, PktData xt, int position)
 *grProcess:the process struct of the specific type of gesture
 *xt:the type recognized
 */
-int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue)
+int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int target)
 {
     int is_gesture = NONE_TYPE;
 
@@ -137,13 +137,13 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue)
                 {
                     case TARGET_TYPE:/*printf("\n\n!!!!!!!!\nsuccess!\ntarget!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);*/is_gesture = TARGET_TYPE;break;
-                    case POINT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                    case POINT_TYPE:createCommand(ON_TYPE,-1,target);printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = POINT_TYPE;break;
-                    case ROTATE_RIGHT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate right!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                    case ROTATE_RIGHT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_UP,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate right!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_RIGHT_TYPE;break;
-                    case ROTATE_LEFT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate left!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                    case ROTATE_LEFT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_DOWN,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate left!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_LEFT_TYPE;break;
-                    case SLIDE_OVER_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nslide over!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                    case SLIDE_OVER_TYPE:createCommand(HUE_TYPE,HUE_VALUE_UP,target);printf("\n\n!!!!!!!!\nsuccess!\nslide over!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = SLIDE_OVER_TYPE;break;
                     case STAND_UP_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nstand up!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = STAND_UP_TYPE;break;

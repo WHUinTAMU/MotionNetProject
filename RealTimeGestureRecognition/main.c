@@ -168,7 +168,7 @@ double initHeading(HANDLE hComm) {
             int position = add_to_queue(queue, pktData);
 
             //input the current data into the SPRING
-            if(SPRING(pktData, &grp,position, queue) == TARGET_TYPE) {
+            if(SPRING(pktData, &grp,position, queue, 0) == TARGET_TYPE) {
                         trueNum++;
                         add_to_list_head(targetHead, pktData);
                     }
@@ -219,7 +219,8 @@ double initHeading(HANDLE hComm) {
 }
 
 void ThreadFunc(Params* params) {
-    double headingFrom2To1 = 315;
+    int target;
+    double headingFrom2To1;
     printf("======== SubThread %ld is watching over %s port ===========\n", GetCurrentThreadId(), params->gszPort);
 
     HANDLE hComm = openPort(params->gszPort);
@@ -240,7 +241,8 @@ void ThreadFunc(Params* params) {
                 printf("\n************** please point %s from lamp2 to lamp1 now*************\n", params->gszPort);
                 Sleep( 5000 );
 
-                printf("\n************** Heading: %f **************\n", initHeading(hComm));
+                headingFrom2To1 = initHeading(hComm);
+                printf("\n************** Heading: %f **************\n", headingFrom2To1);
             }
 
             printf("======================= collect test data for %s =================== \n", params->gszPort);
@@ -347,14 +349,14 @@ void ThreadFunc(Params* params) {
                     int position = add_to_queue(queue, pktData);
 
                     //input the current data into the SPRING
-                    if(SPRING(pktData, &grp[0],position, queue) == TARGET_TYPE) {
+                    if(SPRING(pktData, &grp[0],position, queue, 0) == TARGET_TYPE) {
                         trueNum++;
                         add_to_list_head(targetHead, pktData);
                     }
 
                     if(trueNum >= 20) {
                         /** compute target using the list of the target data list */
-                        int target = pickTarget(*targetHead, headingFrom2To1);
+                        target = pickTarget(*targetHead, headingFrom2To1);
 
                         printf("\n!!!!!!!!!!!!!!!!!!!!!!%s target %d selected!!!!!!!!!!!!!!!!!!\n", params->gszPort,target);
                         trueNum = 0;
@@ -365,7 +367,7 @@ void ThreadFunc(Params* params) {
                     if(hasTarget) {
                         int l = 0;
                         for(l = 1; l <= initialNum - 1; l++) {
-                            SPRING(pktData, &grp[l],position, queue);
+                            SPRING(pktData, &grp[l],position, queue, target);
                         }
                     }
 
@@ -389,7 +391,7 @@ void ThreadFunc(Params* params) {
                     //input the current data into the SPRING
                     int l = 0;
                     for(l = 0; l <= initialNum - 1; l++) {
-                        SPRING(pktData, &grp[l],position, queue);
+                        SPRING(pktData, &grp[l],position, queue, 0);
                     }
                 }
 

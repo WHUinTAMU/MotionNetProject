@@ -8,7 +8,7 @@ double convertReadingToHeading(double y,double x){
     double heading = (double) ((atan2(-1*y,x) * 180) / Pi);
 
     // Change the pointing direction from X-axis to Y-axis
-    heading = heading + 90;
+    heading = heading - 90;
 
     // Normalize to 0-360
     if (heading < 0)

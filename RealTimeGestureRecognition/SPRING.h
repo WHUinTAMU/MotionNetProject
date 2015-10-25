@@ -7,6 +7,7 @@
 #include <math.h>
 #include <float.h>
 #include "DataNode.h"
+#include "LampController.h"
 
 #define TARGET_THRESHOLD 8
 #define POINT_THRESHOLD 135
@@ -81,6 +82,6 @@ void update_array(GRProcess *grProcess, PktData xt, int position);
 *xt:the current data inputed
 return: the front of the queue
 */
-int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue);
+int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int target);
 
 #endif // SPRING_H
