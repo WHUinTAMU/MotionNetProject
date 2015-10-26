@@ -31,6 +31,9 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add library="lib\ws2_32.lib" />
+		</Linker>
 		<Unit filename="DataCalibrator.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -47,6 +50,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="GSLMatrixs.h" />
+		<Unit filename="LampCmd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="LampCmd.h" />
 		<Unit filename="LampController.c">
 			<Option compilerVar="CC" />
 		</Unit>
