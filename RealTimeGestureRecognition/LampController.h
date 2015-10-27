@@ -2,6 +2,7 @@
 #define LAMPCONTROLLER_H_INCLUDED
 #include <stdbool.h>
 #include "cJSON.h"
+#include "LampCmd.h"
 #include <stdio.h>
 
 #define ON_TYPE 0
