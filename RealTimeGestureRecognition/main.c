@@ -12,6 +12,7 @@
 #include "SerialPort.h"
 #include "SPRING.h"
 #include "TargetRecognition.h"
+#include "LampCmd.h"
 
 #define MAG_CALI_TIME 20 //the time need to collect initial data, in seconds.
 
@@ -417,6 +418,16 @@ void ThreadFunc(Params* params) {
 }
 
 int main(int argc, char *argv[]) {
+    if(getBridgeIP() == 1)
+    {
+		printf("get bridge IP succeed\n");
+    }
+
+	if(getUserName("{\"devicetype\":\"my_hue_app#iphone peter\"}"))
+    {
+    	printf("get username succeed\n");
+    }
+
     printf("how many sensors do you have :\n");
     int portCount = 0;
     scanf("%d", &portCount);

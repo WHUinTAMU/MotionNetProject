@@ -41,5 +41,6 @@ bool createCommand(int stateType, int valueChange, int target)
     }
 
     printf("%s",cJSON_Print(pJsonRoot));
+    setLightState(target, cJSON_Print(pJsonRoot));
     cJSON_Delete(pJsonRoot);
 }

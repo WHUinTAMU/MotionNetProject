@@ -1,7 +1,37 @@
-/*
-	lamp control cmd generater
-*/
 #include "LampCmd.h"
+#pragma comment(lib,"ws2_32.lib") 		//Winsock Library
+
+#define MULTI_CAST_SERVER "239.255.255.250" //Multicast ip address
+#define MULTI_CAST_PORT 1900   				//The port listens for incoming multicast data
+#define RECV_BUFLEN 1024  					//Max length of buffer
+#define EMPTY_STR ""						//Empty str returned when error occurs
+#define REQ_COUNT  5						//Request totally 10 times to get response
+#define WAIT_PUSH_BTN_TIME	6 				//Wait totally 60s to detect user's push bridge link button action
+
+char LAMP_BRIDGE_IP[16];	//Lamp bridge IP, at most xxx.xxx.xxx.xxx\0
+char USER_NAME[40];		//USER_NAME is used to control lamps
+
+//flag strings
+const char* BRIDGE_TAG = "IpBridge";
+const char* IP_HEAD_FLAG = "LOCATION: http://";
+const char* IP_TAIL_FLAG = ":80";
+const char * USER_NAME_HEAD_FLAG = "username\":\"";
+const char * USER_NAME_TAIL_FLAG = "\"}}";
+const char* PRESS_BTN_ERROR = "link button not pressed";
+
+/******************************  HTTP POST/PUT request fmt
+<Method> /api/<url> HTTP/1.1
+Host: xxx.xxx.xxx.xxx
+Content-Length: <length>		//Notice: GET don't need Content fields and json strings
+Content-Type: text/plain;charset=UTF-8
+
+<Json cmd string>
+*/
+
+//URL fmt: <username>/<object>/<Id>/<attribute>
+const char* url_fmt = "%s%s%d%s";
+const char* httpRequest_fmt = "%s /api/%s HTTP/1.1\r\nHost: %s\r\n%s";
+const char* httpHeaders_fmt = "Content-Length: %d\r\nContent-Type: text/plain;charset=UTF-8\r\n\r\n%s";
 
 char* subString (const char* input, int offset, int len, char* dest) {
 	if(input == NULL || dest == NULL || offset < 0 || len < 0)
@@ -46,7 +76,7 @@ char* createURL(char* _object, int lampId, char* _attr) {
 	char* object = ( _object == NULL ) ? EMPTY_STR : _object;
 	char* attr = ( _attr == NULL ) ? EMPTY_STR : _attr;
 
-	int urlLen = strlen(url_fmt) + strlen(object) + strlen(attr);
+	int urlLen = strlen(url_fmt) + strlen(USER_NAME) + strlen(object) + strlen(attr) ;
 	char* url =(char*) malloc(sizeof(char) * urlLen);
 	memset(url,'\0', urlLen);
 
@@ -72,25 +102,31 @@ char* createRequestStr(char* method, char* _url, char* headers) {
 	char* url = ( _url == NULL ) ? EMPTY_STR : _url;
 
 	int headerLen = (headers == NULL ) ? 0 : strlen(headers);
-	int reqLen = strlen(httpRequest_fmt) + strlen(method) + strlen(url) + headerLen + 5;
+	int reqLen = strlen(httpRequest_fmt) + strlen(method) + strlen(url) + strlen(LAMP_BRIDGE_IP) + headerLen  ;
 
-	char* req =(char*) malloc(sizeof(char) * reqLen);
-	memset(req,'\0', reqLen);
+	char* req ;
 
 	if(headerLen > 0) {
 		int descripLen = headerLen + strlen(httpHeaders_fmt);
 		char* description = (char* )malloc(descripLen * sizeof(char));
 		memset(description, '\0', descripLen);
 
+        reqLen += descripLen;
+		req =(char*) malloc(sizeof(char) * reqLen);
+		memset(req,'\0', reqLen);
+
 		sprintf(description, httpHeaders_fmt, strlen(headers), headers);
 		sprintf(req, httpRequest_fmt, method, url, LAMP_BRIDGE_IP, description);
 
 		free(description);
-	} else
-		sprintf(req, httpRequest_fmt, method, url, LAMP_BRIDGE_IP, EMPTY_STR);
+	} else{
+	    req =(char*) malloc(sizeof(char) * reqLen);
+		memset(req,'\0', reqLen);
+	    sprintf(req, httpRequest_fmt, method, url, LAMP_BRIDGE_IP, EMPTY_STR);
+	}
 
 	printf("===========================  Request  ==========================\n");
-	puts(req);
+	//puts(req);
 	return req;
 }
 
@@ -129,20 +165,22 @@ char* sendTcpRequest(char* request, int port, char* addr) {
 		ret = recv(sclient, recData, RECV_BUFLEN, 0);
 		if(ret <= 0) {
 			i ++;
+			memset(recData,'\0', RECV_BUFLEN);
 			continue;
 		}
 
 		recData[ret] = 0x00;
 		printf("===========================  Response  ==========================\n");
-		puts(recData);
+		//puts(recData);
 
 		if(strstr(recData, "200 OK") != NULL) {
 			//receive more info from bridge
 			memset(recData,'\0', RECV_BUFLEN);
 			ret = recv(sclient, recData, RECV_BUFLEN, 0);
+			recData[ret] = 0x00;
 			if(ret > 0) {
 				printf("===========================  Response  ==========================\n");
-				puts(recData);
+				//puts(recData);
 			}
 			break;
 		}
@@ -154,9 +192,8 @@ char* sendTcpRequest(char* request, int port, char* addr) {
 		printf("after %d times request, server still don't respond!\n", REQ_COUNT);
 		return EMPTY_STR;
 	} else {
-		char* response = (char*) malloc(sizeof(char) * strlen(recData));
+		char* response = (char*) malloc(sizeof(char) * (strlen(recData) + 1));
 		strcpy(response, recData);
-
 		return response;
 	}
 }
@@ -205,7 +242,7 @@ int getLightState(int lampId) {
 
 int getUserName(char* deviceType) {
 	char* request = createRequestStr("POST", NULL, deviceType);
-	if((strcmp(request, EMPTY_STR) == 1))
+	if(strcmp(request, EMPTY_STR) == 0)
 		return 0;
 
 	int countTime = 0;
@@ -214,7 +251,7 @@ int getUserName(char* deviceType) {
 	while((strstr(response, USER_NAME_HEAD_FLAG) == NULL) || (strstr(response, PRESS_BTN_ERROR) != NULL) || (countTime >= WAIT_PUSH_BTN_TIME)) {
 		free(response);
 		printf("\nplease push the button on the lamp bridge in the next 10s!\n");
-		Sleep(10000);
+		Sleep(3000);
 		countTime ++;
 		response = sendTcpRequest(request, 80, LAMP_BRIDGE_IP);
 	}
@@ -223,7 +260,7 @@ int getUserName(char* deviceType) {
 	free(request);
 	free(response);
 
-	if((countTime >= WAIT_PUSH_BTN_TIME) && (strcmp(USER_NAME, EMPTY_STR) == 1)) {
+	if((countTime >= WAIT_PUSH_BTN_TIME) && (strcmp(USER_NAME, EMPTY_STR) == 0)) {
 		printf("wait for push bridge link button timeout ......\n");
 		return 0;
 	} else {
