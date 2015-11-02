@@ -35,6 +35,8 @@ int add_to_queue(SqQueue * queue, PktData pktData) {
     queue->gyroZData[queue->rear] = pktData.gyroZ;
     queue->magZData[queue->rear] = pktData.magZ;
 
+    queue->timeStamp[queue->rear] = pktData.timeStamp;
+
     queue->rear = (queue->rear + 1) % MAX_SIZE;
     return (queue->rear - 1 + MAX_SIZE ) % MAX_SIZE;
 }

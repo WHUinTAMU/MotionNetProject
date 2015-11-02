@@ -249,15 +249,15 @@
 
 1445406339 D
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.c
 	"DataCalibrator.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datacalibrator.h
 	<stdbool.h>
 	<gsl/gsl_math.h>
 	"GSLMatrixs.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.h
 	<stdio.h>
 	<math.h>
 	<gsl/gsl_matrix.h>
@@ -265,10 +265,10 @@
 	<gsl/gsl_blas.h>
 	<gsl/gsl_eigen.h>
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.c
+1446498925 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.c
 	"DataNode.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.h
+1446498819 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\datanode.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -299,10 +299,10 @@
 	<Windows.h>
 	<tchar.h>
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.c
 	"FileUtil.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\fileutil.h
 	<stdio.h>
 	"DataNode.h"
 	"SPRING.h"
@@ -312,24 +312,23 @@
 
 1445406339 d:\github\motionnetproject\realtimegesturerecognition\fileutil.h
 
-1446001058 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.h
+1446499328 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
 	<math.h>
 	<float.h>
 	"DataNode.h"
-	"LampController.h"
 
 1445406339 d:\github\motionnetproject\realtimegesturerecognition\spring.h
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\gslmatrixs.c
 	"GSLMatrixs.h"
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.c
 	"PktParser.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\pktparser.h
 	<Windows.h>
 	"SerialPort.h"
 	"DataNode.h"
@@ -361,7 +360,7 @@
 
 1445406339 d:\github\motionnetproject\realtimegesturerecognition\pktparser.h
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.h
 	<stdio.h>
 	<stdbool.h>
 	<Windows.h>
@@ -375,13 +374,13 @@
 1445201889 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\recognition.h
 	"SPRING.h"
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\serialport.c
 	"SerialPort.h"
 
-1445999964 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.c
+1446499944 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\spring.c
 	"SPRING.h"
 
-1445999945 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\main.c
+1446499918 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\main.c
 	<stdio.h>
 	<stdlib.h>
 	<windows.h>
@@ -424,10 +423,10 @@
 1445406444 source:d:\github\motionnetproject\realtimegesturerecognition\datacalibrator.c
 	"DataCalibrator.h"
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\targetrecognition.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\targetrecognition.c
 	"DataNode.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\targetrecognition.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\targetrecognition.h
 	<stdio.h>
 	<stdlib.h>
 	<math.h>
@@ -528,7 +527,7 @@
 1445900285 source:c:\users\xing\documents\github\motionnetproject\realtimegesturerecognition\targetrecognition.c
 	"DataNode.h"
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\cjson.c
+1445993826 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\cjson.c
 	<string.h>
 	<stdio.h>
 	<math.h>
@@ -538,13 +537,13 @@
 	<ctype.h>
 	"cJSON.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\cjson.h
+1445993826 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\cjson.h
 	<stddef.h>
 
-1446001135 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcontroller.c
+1446498501 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcontroller.c
 	"LampController.h"
 
-1446000779 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcontroller.h
+1446498501 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcontroller.h
 	<stdbool.h>
 	"cJSON.h"
 	"LampCmd.h"
@@ -579,10 +578,10 @@
 	<stdio.h>
 	<winsock2.h>
 
-1445997426 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcmd.c
+1446498501 source:c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcmd.c
 	"LampCmd.h"
 
-1445997426 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcmd.h
+1446498501 c:\users\weizi\documents\github\motionnetproject\realtimegesturerecognition\lampcmd.h
 	<stdio.h>
 	<winsock2.h>
 

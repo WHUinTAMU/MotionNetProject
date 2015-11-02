@@ -7,12 +7,15 @@
 #include <math.h>
 #include <float.h>
 #include "DataNode.h"
-#include "LampController.h"
 
 #define TARGET_THRESHOLD 8
 #define POINT_THRESHOLD 135
 #define ROTATE_RIGHT_THRESHOLD 30
-#define ROTATE_LEFT_THRESHOLD 70
+#define ROTATE_RIGHT_HALF_THRESHOLD 20
+#define ROTATE_RIGHT_FULL_THRESHOLD 35
+#define ROTATE_LEFT_HALF_THRESHOLD 25
+#define ROTATE_LEFT_FULL_THRESHOLD 25
+#define ROTATE_LEFT_THRESHOLD 55
 #define SLIDE_OVER_THRESHOLD 45
 #define STAND_UP_THRESHOLD 28
 #define SIT_DOWN_THRESHOLD 20
@@ -21,7 +24,11 @@
 #define TARGET_TIMELIMIT 0
 #define POINT_TIMELIMIT 500
 #define ROTATE_RIGHT_TIMELIMIT 400
+#define ROTATE_RIGHT_HALF_TIMELIMIT 250
+#define ROTATE_RIGHT_FULL_TIMELIMIT 400
 #define ROTATE_LEFT_TIMELIMIT 400
+#define ROTATE_LEFT_HALF_TIMELIMIT 250
+#define ROTATE_LEFT_FULL_TIMELIMIT 400
 #define SLIDE_OVER_TIMELIMIT 500
 #define STAND_UP_TIMELIMIT 550
 #define SIT_DOWN_TIMELIMIT 550
@@ -30,14 +37,16 @@
 #define NONE_TYPE -1
 #define TARGET_TYPE 0
 #define POINT_TYPE 1
-#define ROTATE_RIGHT_TYPE 2
-#define ROTATE_LEFT_TYPE 3
-#define SLIDE_OVER_TYPE 4
-#define STAND_UP_TYPE 5
-#define SIT_DOWN_TYPE 6
-#define WALK_TYPE 7
+#define ROTATE_RIGHT_HALF_TYPE 2
+#define ROTATE_RIGHT_FULL_TYPE 3
+#define ROTATE_LEFT_HALF_TYPE 4
+#define ROTATE_LEFT_FULL_TYPE 5
+#define SLIDE_OVER_TYPE 6
+#define STAND_UP_TYPE 7
+#define SIT_DOWN_TYPE 8
+#define WALK_TYPE 9
 
-#define DTW_NUM 8
+#define DTW_NUM 12
 
 
 /**
@@ -82,6 +91,8 @@ void update_array(GRProcess *grProcess, PktData xt, int position);
 *xt:the current data inputed
 return: the front of the queue
 */
-int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int target);
+int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, bool isSkip);
+
+double getDegreeFromGyro(int start, int end, SqQueue* queue);
 
 #endif // SPRING_H

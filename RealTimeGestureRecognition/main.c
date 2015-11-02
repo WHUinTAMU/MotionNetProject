@@ -18,6 +18,8 @@
 
 #define INIT_LAMP_HEADING 10 //the time need to collect data for calculating the direction from lamp2 to lamp1
 
+#define TARGET_DATA_NUM 20
+
 const PktData ZERO_PKT = {0.0, 0.0};
 
 //used to only initialize calibrator once.
@@ -191,13 +193,13 @@ double initHeading(HANDLE hComm) {
 
         fillMagDataArray(targetHead, magDataX, magDataY, magDataZ);
 
-        write_list_to_file("C:/Users/weizi/Desktop/Raw_Direction_Cal_Data.txt", targetHead);
+        write_list_to_file("C:/Users/xing/Desktop/Raw_Direction_Cal_Data.txt", targetHead);
         clear_list(targetHead);
 
         if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
             continue;
 
-        write_mag_to_file("C:/Users/weizi/Desktop/Corrected_Direction_Cal_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
+        write_mag_to_file("C:/Users/xing/Desktop/Corrected_Direction_Cal_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
 
         //consider variance
 
@@ -253,38 +255,39 @@ void ThreadFunc(Params* params) {
             char rawDataFileName[60];  			//The file stores raw data
             char correctedDataFileName[60];  	//The file stores corrected magnetic data
 
-            sprintf(rawDataFileName, "C:/Users/weizi/Desktop/%s_Raw_Mag_Data.txt",params->gszPort);
-            sprintf(correctedDataFileName, "C:/Users/weizi/Desktop/%s_Corrected_Mag_Data.txt",params->gszPort);
+            sprintf(rawDataFileName, "C:/Users/xing/Desktop/%s_Raw_Mag_Data.txt",params->gszPort);
+            sprintf(correctedDataFileName, "C:/Users/xing/Desktop/%s_Corrected_Mag_Data.txt",params->gszPort);
 
             //the models of the four gestures
-            char *gestureModel[DTW_NUM] = {"./gesture_model/target.txt"
-                                           ,"./gesture_model/point.txt"
-                                           ,"./gesture_model/rotate_right.txt"
-                                           ,"./gesture_model/rotate_left.txt"
-                                           ,"./gesture_model/slide_over.txt"
-                                           ,"./activity_model/stand_up.txt"
-                                           ,"./activity_model/sit_down.txt"
-                                           ,"./activity_model/walk.txt"
-                                          };
+				char *gestureModel[DTW_NUM] = {"./gesture_model/target.txt"
+                    ,"./gesture_model/point.txt"
+                    ,"./gesture_model/rotate_right_half.txt"
+                    ,"./gesture_model/rotate_right_full.txt"
+                    ,"./gesture_model/rotate_left_half.txt"
+                    ,"./gesture_model/rotate_left_full.txt"
+                    ,"./gesture_model/slide_over.txt"
+                    ,"./activity_model/stand_up.txt"
+                    ,"./activity_model/sit_down.txt"
+                    ,"./activity_model/walk.txt"};
 
-            //the tresholds of four model gestures
-            double threshold[DTW_NUM] = {TARGET_THRESHOLD,POINT_THRESHOLD,ROTATE_RIGHT_THRESHOLD,ROTATE_LEFT_THRESHOLD
-                                         ,SLIDE_OVER_THRESHOLD,STAND_UP_THRESHOLD,SIT_DOWN_THRESHOLD,WALK_THRESHOLD
-                                        };
+                //the tresholds of four model gestures
+                double threshold[DTW_NUM] = {TARGET_THRESHOLD,POINT_THRESHOLD,ROTATE_RIGHT_HALF_THRESHOLD
+                ,ROTATE_RIGHT_FULL_THRESHOLD,ROTATE_LEFT_HALF_THRESHOLD,ROTATE_LEFT_FULL_THRESHOLD
+                ,SLIDE_OVER_THRESHOLD,STAND_UP_THRESHOLD,SIT_DOWN_THRESHOLD,WALK_THRESHOLD};
 
-            //the time limit of four model gestures
-            double timeLimit[DTW_NUM] = {TARGET_TIMELIMIT,POINT_TIMELIMIT,ROTATE_RIGHT_TIMELIMIT,ROTATE_LEFT_TIMELIMIT
-                                         ,SLIDE_OVER_TIMELIMIT,STAND_UP_TIMELIMIT,SIT_DOWN_TIMELIMIT,WALK_TIMELIMIT
-                                        };
+                //the time limit of four model gestures
+                double timeLimit[DTW_NUM] = {TARGET_TIMELIMIT,POINT_TIMELIMIT,ROTATE_RIGHT_HALF_TIMELIMIT
+                ,ROTATE_RIGHT_FULL_TIMELIMIT,ROTATE_LEFT_HALF_TIMELIMIT,ROTATE_LEFT_FULL_TIMELIMIT
+                ,SLIDE_OVER_TIMELIMIT,STAND_UP_TIMELIMIT,SIT_DOWN_TIMELIMIT,WALK_TIMELIMIT};
 
             int initialNum = 0;
             int initialStart = 0;
             if(params->sensorType == WRIST_TYPE) {
-                initialNum = 5;
+                initialNum = 7;
                 initialStart = 0;
             } else {
                 initialNum = 3;
-                initialStart = 5;
+                initialStart = 7;
             }
             //initialize the four models and their GestureRecognitionProcess
             //the order is :
@@ -339,6 +342,9 @@ void ThreadFunc(Params* params) {
                 bool hasTarget = false;
                 DataHeadNode *targetHead = create_list_with_head();
 
+                int springRet = -1;
+                int skipType = -1;
+
                 PktData pktData;
                 int i;
                 for(i = 0; i < params->magDataNum; i ++) {
@@ -355,7 +361,7 @@ void ThreadFunc(Params* params) {
                         add_to_list_head(targetHead, pktData);
                     }
 
-                    if(trueNum >= 20) {
+                    if(trueNum >= TARGET_DATA_NUM) {
                         /** compute target using the list of the target data list */
                         target = pickTarget(*targetHead, headingFrom2To1);
 
@@ -368,7 +374,24 @@ void ThreadFunc(Params* params) {
                     if(hasTarget) {
                         int l = 0;
                         for(l = 1; l <= initialNum - 1; l++) {
-                            SPRING(pktData, &grp[l],position, queue, target);
+                            if(l == skipType)
+                            {
+                                //printf("\n\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@%d\n\n\n\n",skipType);
+                                springRet = SPRING(pktData, &grp[l],position, queue, true);
+                                skipType = -1;
+                            }
+                            else
+                            {
+                                springRet = SPRING(pktData, &grp[l],position, queue, false);
+                            }
+
+                            switch(springRet)
+                            {
+                                case ROTATE_RIGHT_HALF_TYPE:skipType = ROTATE_RIGHT_FULL_TYPE;break;
+                                case ROTATE_RIGHT_FULL_TYPE:skipType = ROTATE_RIGHT_HALF_TYPE;break;
+                                case ROTATE_LEFT_HALF_TYPE:skipType = ROTATE_LEFT_FULL_TYPE;break;
+                                case ROTATE_LEFT_FULL_TYPE:skipType = ROTATE_LEFT_HALF_TYPE;break;
+                            }
                         }
                     }
 
@@ -418,7 +441,7 @@ void ThreadFunc(Params* params) {
 }
 
 int main(int argc, char *argv[]) {
-    if(getBridgeIP() == 1)
+    /*if(getBridgeIP() == 1)
     {
 		printf("get bridge IP succeed\n");
     }
@@ -426,7 +449,7 @@ int main(int argc, char *argv[]) {
 	if(getUserName("{\"devicetype\":\"my_hue_app#iphone peter\"}"))
     {
     	printf("get username succeed\n");
-    }
+    }*/
 
     printf("how many sensors do you have :\n");
     int portCount = 0;

@@ -81,7 +81,7 @@ void update_array(GRProcess *grp, PktData xt, int position)
 *grProcess:the process struct of the specific type of gesture
 *xt:the type recognized
 */
-int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int target)
+int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, bool isSkip)
 {
     int is_gesture = NONE_TYPE;
 
@@ -129,44 +129,63 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int t
             //printf("%d\n",timeGap);
             if(timeGap >= grProcess->timeLimit)
             {
-                is_gesture = true;
+                //is_gesture = true;
                 int t = grProcess->type;
 
                 //report the right optimal subsequence
-                switch(t)
+/*                 case POINT_TYPE:createCommand(ON_TYPE,-1,target);printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+ *                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = POINT_TYPE;break;
+ *                     case ROTATE_RIGHT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_UP,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate right!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+ *                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_RIGHT_TYPE;break;
+ *                     case ROTATE_LEFT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_DOWN,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate left!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+ *                                   *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_LEFT_TYPE;break;
+ *
+ */
+                if(isSkip != true)
                 {
-                    case TARGET_TYPE:/*printf("\n\n!!!!!!!!\nsuccess!\ntarget!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);*/is_gesture = TARGET_TYPE;break;
-                    case POINT_TYPE:createCommand(ON_TYPE,-1,target);printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = POINT_TYPE;break;
-                    case ROTATE_RIGHT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_UP,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate right!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_RIGHT_TYPE;break;
-                    case ROTATE_LEFT_TYPE:createCommand(BRI_TYPE,BRI_VALUE_DOWN,target);printf("\n\n!!!!!!!!\nsuccess!\nrotate left!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_LEFT_TYPE;break;
-                    case SLIDE_OVER_TYPE:createCommand(HUE_TYPE,HUE_VALUE_UP,target);printf("\n\n!!!!!!!!\nsuccess!\nslide over!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = SLIDE_OVER_TYPE;break;
-                    case STAND_UP_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nstand up!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = STAND_UP_TYPE;break;
-                    case SIT_DOWN_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nsit down!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = SIT_DOWN_TYPE;break;
-                    case WALK_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nwalk!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
-                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = WALK_TYPE;break;
-
-                }
-
-                //reinitialize the dmin,d
-                *dmin = DBL_MAX;
-
-                int i = 0;
-                for(i = 1; i <= m; i++)
-                {
-                    if(compare_two_position(queue, *te, grProcess->startArray[i]))
+                    switch(t)
                     {
-                        grProcess->distanceArray[i] = DBL_MAX;
+                        case POINT_TYPE:printf("\n\n!!!!!!!!\nsuccess!\npoint!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = POINT_TYPE;break;
+                        case SLIDE_OVER_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nslide over!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = SLIDE_OVER_TYPE;break;
+                        case STAND_UP_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nstand up!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = STAND_UP_TYPE;break;
+                        case SIT_DOWN_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nsit down!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = SIT_DOWN_TYPE;break;
+                        case TARGET_TYPE:/*printf("\n\n!!!!!!!!\nsuccess!\ntarget!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);*/is_gesture = TARGET_TYPE;break;
+                        case WALK_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nwalk!!!\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  *dmin,*ts,*te,position,*timee - *times);is_gesture = WALK_TYPE;break;
+                        case ROTATE_RIGHT_HALF_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate right half!!!\ndegree=%f\n\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  getDegreeFromGyro(*ts,*te,queue),*dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_RIGHT_HALF_TYPE;break;
+                        case ROTATE_RIGHT_FULL_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate right full!!!\ndegree=%f\n\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  getDegreeFromGyro(*ts,*te,queue),*dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_RIGHT_FULL_TYPE;break;
+                        case ROTATE_LEFT_HALF_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate left half!!!\ndegree=%f\n\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  getDegreeFromGyro(*ts,*te,queue),*dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_LEFT_HALF_TYPE;break;
+                        case ROTATE_LEFT_FULL_TYPE:printf("\n\n!!!!!!!!\nsuccess!\nrotate left full!!!\ndegree=%f\n\ndmin=%f\nts=%d\nte=%d\nt=%d\ntime span=%d\n!!!!!!!!\n\n",
+                                  getDegreeFromGyro(*ts,*te,queue),*dmin,*ts,*te,position,*timee - *times);is_gesture = ROTATE_LEFT_FULL_TYPE;break;
+
                     }
                 }
+
             }
 
+        }
+    }
+
+    if(isSkip || is_gesture != NONE_TYPE)
+    {
+        //reinitialize the dmin,d
+        *dmin = DBL_MAX;
+
+        int i = 0;
+        for(i = 1; i <= m; i++)
+        {
+            //if(compare_two_position(queue, *te, grProcess->startArray[i]))
+            //{
+                grProcess->distanceArray[i] = DBL_MAX;
+            //}
         }
     }
 
@@ -183,7 +202,7 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int t
     }
 
     //if(grProcess->type == 1)
-        //printf("%d::distance = %lf::start = %d\n", xt.pktNumber, grProcess->distanceArray[m], grProcess->startArray[m]);
+        //printf("%d::distance = %lf::start = %d::time span = %d\n", xt.pktNumber, grProcess->distanceArray[m], grProcess->startArray[m],*timee - *times);
 
     // replace the d with d', and s with s'
     double *dtmp = grProcess->distanceArray;
@@ -199,4 +218,19 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int t
     grProcess->timeArrayLast = ttmp;
 
     return is_gesture;
+}
+
+double getDegreeFromGyro(int start, int end, SqQueue* queue)
+{
+    int i = start;
+    double degree = 0;
+    while(i != end + 1)
+    {
+        double speed = fabs(queue->gyroXData[i]);
+        int timeSpan = queue->timeStamp[(i + 1) % MAX_SIZE] - queue->timeStamp[i];
+        degree += speed * timeSpan * 120 / 1000 * 3.5;
+
+        i = (i + 1) % MAX_SIZE;
+    }
+    return degree * 254 / 180;
 }

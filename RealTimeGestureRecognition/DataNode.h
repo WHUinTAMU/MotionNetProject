@@ -44,6 +44,8 @@ typedef struct {
 	double gyroZData[MAX_SIZE];
 	double magZData[MAX_SIZE];
 
+	long timeStamp[MAX_SIZE];
+
 	int front, rear;
 }SqQueue;
 
