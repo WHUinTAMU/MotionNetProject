@@ -1,7 +1,7 @@
 #include "LampController.h"
 
-extern bool onValue[4] = {false,false,false,false};
-extern int briValue[4] = {127,127,127,127};
+extern bool onValue[4] = {true,true,true,true};
+extern int briValue[4] = {254,254,254,254};
 extern int hueValue[4] = {31767,31767,31767,31767};
 
 bool createCommand(int stateType, int valueChange, int target)

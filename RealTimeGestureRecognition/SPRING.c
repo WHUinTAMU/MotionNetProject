@@ -183,7 +183,7 @@ int SPRING(PktData xt, GRProcess *grProcess, int position, SqQueue* queue, int t
     }
 
     //if(grProcess->type == 1)
-        //printf("%d::dm = %lf::sm = %d\n", xt.pktNumber, grProcess->distanceArray[m], grProcess->startArray[m]);
+        //printf("%d::distance = %lf::start = %d\n", xt.pktNumber, grProcess->distanceArray[m], grProcess->startArray[m]);
 
     // replace the d with d', and s with s'
     double *dtmp = grProcess->distanceArray;

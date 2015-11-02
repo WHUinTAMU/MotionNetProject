@@ -13,8 +13,8 @@
 #define BRI_STRING "bri"
 #define HUE_STRING "hue"
 
-#define BRI_VALUE_UP 30
-#define BRI_VALUE_DOWN -30
+#define BRI_VALUE_UP 50
+#define BRI_VALUE_DOWN -50
 #define HUE_VALUE_UP 5000
 #define HUE_VALUE_DOWN -5000
 

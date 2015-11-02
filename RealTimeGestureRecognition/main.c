@@ -70,13 +70,13 @@ void initCalibrator(HANDLE hComm) {
         //pass magData to calibrator
         calculateCalibrator(magDataX, magDataY, magDataZ, len);
 
-        write_list_to_file("C:/Users/xing/Desktop/Raw_Initial_Data.txt", ptr);
+        write_list_to_file("C:/Users/weizi/Desktop/Raw_Initial_Data.txt", ptr);
         clear_list(ptr);
 
         if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
             continue;
 
-        write_mag_to_file("C:/Users/xing/Desktop/Corrected_Initial_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
+        write_mag_to_file("C:/Users/weizi/Desktop/Corrected_Initial_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
 
         if(isCalibratorValid(magDataX, magDataY, magDataZ, len))
             break;
@@ -191,13 +191,13 @@ double initHeading(HANDLE hComm) {
 
         fillMagDataArray(targetHead, magDataX, magDataY, magDataZ);
 
-        write_list_to_file("C:/Users/xing/Desktop/Raw_Direction_Cal_Data.txt", targetHead);
+        write_list_to_file("C:/Users/weizi/Desktop/Raw_Direction_Cal_Data.txt", targetHead);
         clear_list(targetHead);
 
         if(! calibrateMagData(magDataX, magDataY, magDataZ, heading, len))
             continue;
 
-        write_mag_to_file("C:/Users/xing/Desktop/Corrected_Direction_Cal_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
+        write_mag_to_file("C:/Users/weizi/Desktop/Corrected_Direction_Cal_Mag_Data.txt", magDataX, magDataY, magDataZ, heading, len);
 
         //consider variance
 
@@ -253,8 +253,8 @@ void ThreadFunc(Params* params) {
             char rawDataFileName[60];  			//The file stores raw data
             char correctedDataFileName[60];  	//The file stores corrected magnetic data
 
-            sprintf(rawDataFileName, "C:/Users/xing/Desktop/%s_Raw_Mag_Data.txt",params->gszPort);
-            sprintf(correctedDataFileName, "C:/Users/xing/Desktop/%s_Corrected_Mag_Data.txt",params->gszPort);
+            sprintf(rawDataFileName, "C:/Users/weizi/Desktop/%s_Raw_Mag_Data.txt",params->gszPort);
+            sprintf(correctedDataFileName, "C:/Users/weizi/Desktop/%s_Corrected_Mag_Data.txt",params->gszPort);
 
             //the models of the four gestures
             char *gestureModel[DTW_NUM] = {"./gesture_model/target.txt"
