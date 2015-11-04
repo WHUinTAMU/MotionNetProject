@@ -18,7 +18,7 @@ bool setupPort(HANDLE hComm) {
         return 0;
     }
 
-    dcb.BaudRate = 115200;
+    dcb.BaudRate = 9600;   // changed from 115200, now is 9600 to collect beacons' data
     dcb.fParity = FALSE;
     dcb.Parity = NOPARITY;
     dcb.StopBits = ONESTOPBIT;

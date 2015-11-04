@@ -29,8 +29,13 @@ void write_list_to_file(char * fileName, DataHeadNode *pHead) {
     fprintf(stream, "AccX\t\tAccY\t\tAccZ\t\tGyroX\t\tGyroY\t\tGyroZ\t\tMagX\t\tMagY\t\tMagZ\t\tNumber\tTimeStamp\r\n");
     while (ptr != NULL) {
         pktData = ptr->packetData;
-        fprintf(stream, "%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%ld\t%lu\r\n", pktData.accX, pktData.accY, pktData.accZ,
-                pktData.gyroX, pktData.gyroY, pktData.gyroZ, pktData.magX, pktData.magY, pktData.magZ, pktData.pktNumber, pktData.timeStamp);
+        fprintf(stream, "%ld\t%lu\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%d\t%d\t%d\t%d\r\n",
+        pktData.pktNumber, pktData.timeStamp,
+        pktData.accX, pktData.accY, pktData.accZ,
+        pktData.gyroX, pktData.gyroY, pktData.gyroZ,
+        pktData.magX, pktData.magY, pktData.magZ,
+        pktData.rssiData1, pktData.rssiData2, pktData.rssiData3, pktData.rssiData4
+        );
         ptr = ptr->next;
     }
     fclose(stream);

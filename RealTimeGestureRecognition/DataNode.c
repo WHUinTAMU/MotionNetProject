@@ -194,12 +194,13 @@ void print_list(DataHeadNode *pHead) {
 }
 
 void print_pktData(PktData packetData) {
-    printf("%5f, %5f, %5f, %5f, %5f, %5f, %4f, %4f, %4f, %ld, %ld\n",
+    printf("%ld, %ld, %5f, %5f, %5f, %5f, %5f, %5f, %4f, %4f, %4f, %d, %d, %d, %d\n",
+           packetData.pktNumber, packetData.timeStamp,
            packetData.accX, packetData.accY, packetData.accZ,
            packetData.gyroX, packetData.gyroY, packetData.gyroZ,
            packetData.magX, packetData.magY, packetData.magZ,
-           packetData.pktNumber,
-           packetData.timeStamp);
+           packetData.rssiData1, packetData.rssiData2, packetData.rssiData3, packetData.rssiData4
+           );
 }
 
 PktData get_element_from_head(DataHeadNode *pHead) {
