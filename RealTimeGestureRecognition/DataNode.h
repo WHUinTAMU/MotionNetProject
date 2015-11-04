@@ -24,6 +24,12 @@ typedef struct packetData {
     double magX;
     double magY;
     double magZ;
+
+    unsigned char rssiData1;
+    unsigned char rssiData2;
+    unsigned char rssiData3;
+    unsigned char rssiData4;
+
     unsigned long timeStamp;
     long pktNumber;
 } PktData;
